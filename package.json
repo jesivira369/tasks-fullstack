@@ -18,6 +18,8 @@
     "lint": "turbo run lint"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/passport-jwt": "^4.0.1",
     "prettier": "^3.2.5",
     "prisma": "latest",
     "tsx": "4.19.1",
@@ -28,7 +30,14 @@
   },
   "name": "with-prisma",
   "dependencies": {
-    "@prisma/client": "latest"
+    "@hookform/resolvers": "^4.1.3",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/passport": "^11.0.5",
+    "@prisma/client": "latest",
+    "bcrypt": "^5.1.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "yup": "^1.6.1"
   },
   "packageManager": "npm@10.9.2",
   "workspaces": [
