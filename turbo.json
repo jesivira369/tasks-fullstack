@@ -6,25 +6,28 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["generate", "db:migrate:dev"]
+    },
+    "generate": {
+      "dependsOn": ["^generate"],
+      "cache": false
+    },
     "db:migrate:dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "dependsOn": ["db:push"]
     },
     "db:migrate:deploy": {
       "cache": false
     },
     "db:push": {
-      "cache": false
+      "cache": false,
+      "dependsOn": ["generate"]
     },
     "db:seed": {
-      "cache": false
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "generate": {
-      "dependsOn": ["^generate"],
       "cache": false
     },
     "lint": {}
