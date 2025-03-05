@@ -23,7 +23,7 @@ export class TasksController {
 
   @Post()
   create(@Req() req: Request, @Body() createTaskDto: CreateTaskDto) {
-    const userId = (req.user as any)?.userId;
+    const userId = (req.user as { userId: string }).userId;
 
     if (!userId) {
       throw new UnauthorizedException('User not authenticated');
@@ -34,7 +34,7 @@ export class TasksController {
 
   @Get()
   findAll(@Req() req: Request) {
-    const userId = (req.user as any)?.userId;
+    const userId = (req.user as { userId: string }).userId;
 
     if (!userId) {
       throw new UnauthorizedException('User not authenticated');
@@ -45,7 +45,7 @@ export class TasksController {
 
   @Get(':id')
   findOne(@Req() req: Request, @Param('id') id: string) {
-    const userId = (req.user as any)?.userId;
+    const userId = (req.user as { userId: string }).userId;
 
     if (!userId) {
       throw new UnauthorizedException('User not authenticated');
@@ -60,7 +60,7 @@ export class TasksController {
     @Param('id') id: string,
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
-    const userId = (req.user as any)?.userId;
+    const userId = (req.user as { userId: string }).userId;
 
     if (!userId) {
       throw new UnauthorizedException('User not authenticated');
@@ -71,7 +71,7 @@ export class TasksController {
 
   @Delete(':id')
   remove(@Req() req: Request, @Param('id') id: string) {
-    const userId = (req.user as any)?.userId;
+    const userId = (req.user as { userId: string }).userId;
 
     if (!userId) {
       throw new UnauthorizedException('User not authenticated');

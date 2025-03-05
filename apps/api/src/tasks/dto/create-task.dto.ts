@@ -1,4 +1,5 @@
-import { IsString, IsBoolean, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsEnum } from 'class-validator';
+import { TaskStatus } from '@repo/types';
 
 export class CreateTaskDto {
   @IsString()
@@ -8,7 +9,7 @@ export class CreateTaskDto {
   @IsOptional()
   description?: string;
 
-  @IsBoolean()
+  @IsEnum(['PENDING', 'COMPLETED'])
   @IsOptional()
-  completed?: boolean;
+  status?: TaskStatus;
 }
