@@ -141,7 +141,7 @@ const config = {
   },
   "relativeEnvPaths": {
     "rootEnvPath": null,
-    "schemaEnvPath": "../../.env"
+    "schemaEnvPath": "../../../../apps/api/.env"
   },
   "relativePath": "../../prisma",
   "clientVersion": "6.4.1",
@@ -150,6 +150,7 @@ const config = {
     "db"
   ],
   "activeProvider": "mysql",
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {
