@@ -19,31 +19,51 @@ enum TaskStatus {
 }
 
 model Task {
-  id            String             @id @default(uuid())
+  id            String   @id @default(uuid())
   title         String
   description   String?
-  status        TaskStatus         @default(PENDING)
+  status        TaskStatus @default(PENDING)
   userId        String
-  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  collaborators TaskCollaborator[] // Relación a la tabla intermedia
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collaborators TaskCollaborator[]
+  invitations   TaskInvitation[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model TaskCollaborator {
   id     String @id @default(uuid())
   userId String
   taskId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@unique([userId, taskId])
 }
 
+model TaskInvitation {
+  id        String   @id @default(uuid())
+  taskId    String
+  invitedId String
+  status    InvitationStatus @default(PENDING)
+
+  task      Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  invited   User   @relation(fields: [invitedId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model User {
-  id               String             @id @default(uuid())
-  email            String             @unique
-  password         String
-  tasks            Task[]
-  TaskCollaborator TaskCollaborator[]
+  id       String   @id @default(uuid())
+  email    String   @unique
+  password String
+  tasks    Task[]
+  collaborations TaskCollaborator[]
+  invitations TaskInvitation[]
 }
