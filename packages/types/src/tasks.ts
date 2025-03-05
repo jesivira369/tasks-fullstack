@@ -6,6 +6,7 @@ export interface Task {
   description?: string;
   status: TaskStatus;
   userId: string;
+  collaborators: string[];
   createdAt: Date;
   updatedAt: Date;
 }
