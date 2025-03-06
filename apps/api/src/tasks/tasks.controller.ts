@@ -57,6 +57,23 @@ export class TasksController {
     );
   }
 
+  @Get('invitations/pending')
+  async getPendingInvitations(@Req() req: Request) {
+    const userId = (req.user as { userId: string }).userId;
+
+    return this.tasksService.getPendingInvitations(userId);
+  }
+
+  @Get('invitations/:invitationId')
+  async getInvitationDetails(
+    @Req() req: Request,
+    @Param('invitationId') invitationId: string,
+  ) {
+    const userId = (req.user as { userId: string }).userId;
+
+    return this.tasksService.getInvitationDetails(invitationId, userId);
+  }
+
   @Get()
   findAll(@Req() req: Request) {
     const userId = (req.user as { userId: string }).userId;

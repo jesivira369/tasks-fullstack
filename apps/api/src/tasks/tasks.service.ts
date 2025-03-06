@@ -106,7 +106,9 @@ export class TasksService {
 
   async findAll(userId: string) {
     return await this.prisma.task.findMany({
-      where: { userId },
+      where: {
+        OR: [{ userId }, { collaborators: { some: { userId } } }],
+      },
     });
   }
 
@@ -135,7 +137,7 @@ export class TasksService {
     const isAuthorized = await this.prisma.task.findFirst({
       where: {
         id: taskId,
-        OR: [{ userId }, { collaborators: { some: { id: userId } } }],
+        OR: [{ userId }, { collaborators: { some: { userId } } }],
       },
     });
 
@@ -149,6 +151,36 @@ export class TasksService {
       where: { id: taskId },
       data: { status },
     });
+  }
+
+  async getPendingInvitations(userId: string) {
+    return await this.prisma.taskInvitation.findMany({
+      where: { invitedId: userId, status: 'PENDING' },
+      include: {
+        task: {
+          select: { id: true, title: true, user: { select: { email: true } } },
+        },
+      },
+    });
+  }
+
+  async getInvitationDetails(invitationId: string, userId: string) {
+    const invitation = await this.prisma.taskInvitation.findUnique({
+      where: { id: invitationId },
+      include: {
+        task: {
+          select: { id: true, title: true, user: { select: { email: true } } },
+        },
+      },
+    });
+
+    if (!invitation || invitation.invitedId !== userId) {
+      throw new NotFoundException(
+        'Invitación no encontrada o no tienes permiso.',
+      );
+    }
+
+    return invitation;
   }
 
   async remove(userId: string, id: string) {
