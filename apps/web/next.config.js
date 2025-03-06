@@ -1,6 +1,11 @@
-/**
- * @type {import('next').NextConfig}
- */
-module.exports = {
-  reactStrictMode: true,
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    serverActions: true,
+  },
+  env: {
+    API_URL: process.env.NEXT_PUBLIC_API_URL,
+  },
 };
+
+module.exports = nextConfig;

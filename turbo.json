@@ -9,7 +9,7 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "dependsOn": ["generate", "db:migrate:dev"]
+      "dependsOn": ["generate"]
     },
     "generate": {
       "dependsOn": ["^generate"],
