@@ -1,5 +1,5 @@
 import {
-  ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -7,12 +7,15 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { AddCollaboratorDto } from './dto/add-collaborator.dto';
 import { TaskStatus } from '@repo/types';
+import { NotificationsGateway } from 'src/notifications/notifications.gateway';
 
 @Injectable()
 export class TasksService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsGateway: NotificationsGateway,
+  ) {}
 
   async create(userId: string, createTaskDto: CreateTaskDto) {
     return await this.prisma.task.create({
@@ -23,37 +26,82 @@ export class TasksService {
     });
   }
 
-  async addCollaborator(
-    userId: string,
-    AddCollaboratorDto: AddCollaboratorDto,
-  ) {
-    const { taskId, collaboratorId } = AddCollaboratorDto;
-
+  async inviteUser(taskId: string, inviterId: string, invitedId: string) {
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
+      include: { user: true },
     });
 
-    if (!task || task.userId !== userId) {
-      throw new UnauthorizedException(
-        'No tienes permiso para agregar colaboradores.',
+    if (!task || task.userId !== inviterId) {
+      throw new ForbiddenException(
+        'No tienes permisos para invitar usuarios a esta tarea.',
       );
     }
 
-    const existingCollab = await this.prisma.taskCollaborator.findFirst({
-      where: { taskId, userId: collaboratorId },
+    const existingInvitation = await this.prisma.taskInvitation.findFirst({
+      where: { taskId, invitedId },
     });
 
-    if (existingCollab) {
-      throw new ConflictException(
-        'El usuario ya es colaborador de esta tarea.',
+    const existingCollaborator = await this.prisma.taskCollaborator.findFirst({
+      where: { taskId, userId: invitedId },
+    });
+
+    if (existingInvitation) {
+      throw new ForbiddenException('Este usuario ya fue invitado.');
+    }
+
+    if (existingCollaborator) {
+      throw new ForbiddenException('Este usuario ya es colaborador.');
+    }
+
+    const invitation = await this.prisma.taskInvitation.create({
+      data: {
+        taskId,
+        invitedId,
+        status: 'PENDING',
+      },
+    });
+
+    this.notificationsGateway.sendInvitationNotification(invitedId, {
+      id: task.id,
+      title: task.title,
+      inviterEmail: task.user.email,
+      invitationId: invitation.id,
+    });
+
+    return {
+      message: 'Invitación enviada correctamente.',
+      invitationId: invitation.id,
+    };
+  }
+
+  async respondToInvitation(
+    invitationId: string,
+    invitedId: string,
+    accept: boolean,
+  ) {
+    const invitation = await this.prisma.taskInvitation.findUnique({
+      where: { id: invitationId },
+    });
+
+    if (!invitation || invitation.invitedId !== invitedId) {
+      throw new NotFoundException(
+        'Invitación no encontrada o no tienes permisos.',
       );
     }
 
-    await this.prisma.taskCollaborator.create({
-      data: { taskId, userId: collaboratorId },
-    });
+    if (accept) {
+      await this.prisma.taskCollaborator.create({
+        data: {
+          userId: invitedId,
+          taskId: invitation.taskId,
+        },
+      });
+    }
 
-    return { message: 'Colaborador agregado exitosamente.' };
+    await this.prisma.taskInvitation.delete({ where: { id: invitationId } });
+
+    return { message: accept ? 'Invitación aceptada' : 'Invitación rechazada' };
   }
 
   async findAll(userId: string) {

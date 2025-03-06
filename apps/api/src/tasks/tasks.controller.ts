@@ -13,7 +13,6 @@ import {
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { AddCollaboratorDto } from './dto/add-collaborator.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { TaskStatus } from '@repo/types';
@@ -32,6 +31,30 @@ export class TasksController {
     }
 
     return this.tasksService.create(userId, createTaskDto);
+  }
+
+  @Post(':taskId/invite/:userId')
+  async inviteUser(
+    @Req() req: Request,
+    @Param('taskId') taskId: string,
+    @Param('userId') invitedId: string,
+  ) {
+    const inviterId = (req.user as { userId: string }).userId;
+    return this.tasksService.inviteUser(taskId, inviterId, invitedId);
+  }
+
+  @Post('invitation/:invitationId/respond')
+  async respondToInvitation(
+    @Req() req: Request,
+    @Param('invitationId') invitationId: string,
+    @Body('accept') accept: boolean,
+  ) {
+    const invitedId = (req.user as { userId: string }).userId;
+    return this.tasksService.respondToInvitation(
+      invitationId,
+      invitedId,
+      accept,
+    );
   }
 
   @Get()
@@ -80,21 +103,6 @@ export class TasksController {
     }
 
     return this.tasksService.remove(userId, id);
-  }
-
-  @Post('add-collaborator')
-  @UseGuards(AuthGuard('jwt'))
-  async addCollaborator(
-    @Req() req: Request,
-    @Body() AddCollaboratorDto: AddCollaboratorDto,
-  ) {
-    const userId = (req.user as { userId: string }).userId;
-
-    if (!userId) {
-      throw new UnauthorizedException('User not authenticated');
-    }
-
-    return this.tasksService.addCollaborator(userId, AddCollaboratorDto);
   }
 
   @Patch(':id/status')
