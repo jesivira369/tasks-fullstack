@@ -26,7 +26,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>
-                    <ListItemButton component={Link} href="/dashboard/invitaciones">
+                    <ListItemButton component={Link} href="/dashboard/invitations">
                         <ListItemIcon>
                             <PersonAddIcon />
                         </ListItemIcon>

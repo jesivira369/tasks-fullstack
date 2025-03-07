@@ -11,5 +11,5 @@ export interface Task {
   collaborators: string[];
   createdAt: Date;
   updatedAt: Date;
-  user?: User;
+  user: User;
 }

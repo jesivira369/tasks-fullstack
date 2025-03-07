@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Select, MenuItem, IconButton, TablePagination, Box,
-    TextField
+    TextField, Chip
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -40,6 +40,14 @@ export default function TaskList({ tasks, onEdit, onDelete }: TaskListProps) {
             (!endDate || new Date(task.createdAt) <= endDate);
         return isStatusMatch && isDateInRange;
     });
+
+    const renderStatus = (status: string) => {
+        const statusColors = {
+            PENDING: "warning",
+            COMPLETED: "success",
+        };
+        return <Chip label={status === "PENDING" ? "Pendiente" : "Completada"} color={statusColors[status]} />;
+    };
 
     return (
         <Box sx={{ width: "100%", p: 2 }}>
@@ -94,6 +102,7 @@ export default function TaskList({ tasks, onEdit, onDelete }: TaskListProps) {
                             <TableCell>Título</TableCell>
                             <TableCell>Descripción</TableCell>
                             <TableCell>Fecha de Creación</TableCell>
+                            <TableCell>Estado</TableCell>
                             <TableCell>Colaboradores</TableCell>
                             <TableCell>Acciones</TableCell>
                         </TableRow>
@@ -106,6 +115,7 @@ export default function TaskList({ tasks, onEdit, onDelete }: TaskListProps) {
                                     {task.description?.length > 50 ? `${task.description.substring(0, 50)}...` : task.description}
                                 </TableCell>
                                 <TableCell>{new Date(task.createdAt).toLocaleDateString()}</TableCell>
+                                <TableCell>{renderStatus(task.status)}</TableCell>
                                 <TableCell>{task?.collaborators?.length > 0 ? "Sí" : "No"}</TableCell>
                                 <TableCell
                                     sx={{
