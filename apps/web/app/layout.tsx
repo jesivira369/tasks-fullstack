@@ -9,9 +9,9 @@ import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname(); // 🔍 Obtiene la ruta actual
+  const pathname = usePathname();
 
-  const isAuthPage = pathname.startsWith("/auth"); // 🛑 No aplicar el AuthGuard en /auth
+  const isAuthPage = pathname.startsWith("/auth");
 
   return (
     <html lang="en">
