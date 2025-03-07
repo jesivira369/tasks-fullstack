@@ -109,13 +109,17 @@ export class TasksService {
       where: {
         OR: [{ userId }, { collaborators: { some: { userId } } }],
       },
+      include: { user: true, collaborators: { include: { user: true } } },
     });
   }
 
   async findOne(userId: string, id: string) {
     const task = await this.prisma.task.findUnique({
-      where: { id, userId },
-      include: { user: true },
+      where: {
+        id: id,
+        OR: [{ userId }, { collaborators: { some: { userId } } }],
+      },
+      include: { user: true, collaborators: { include: { user: true } } },
     });
 
     if (!task) {
@@ -126,10 +130,25 @@ export class TasksService {
   }
 
   async update(userId: string, id: string, updateTaskDto: UpdateTaskDto) {
-    await this.findOne(userId, id);
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+
+    if (!task) {
+      throw new NotFoundException({
+        message: 'La tarea no existe o no tienes acceso',
+      });
+    }
+
+    if (task.userId !== userId) {
+      throw new ForbiddenException({
+        message: 'No tienes permiso para modificar esta tarea',
+      });
+    }
 
     return this.prisma.task.update({
-      where: { id, userId },
+      where: { id },
       data: updateTaskDto,
     });
   }
