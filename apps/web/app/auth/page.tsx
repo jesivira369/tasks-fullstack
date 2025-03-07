@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { signIn } from "next-auth/react";
 import api from "../../lib/api";
 import Cookies from "js-cookie";
 import {
@@ -32,6 +31,13 @@ export default function AuthPage() {
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema),
     });
+
+    useEffect(() => {
+        const token = Cookies.get("token");
+        if (token) {
+            router.push("/dashboard");
+        }
+    }, []);
 
     const onSubmit = async (data: any) => {
         setLoading(true);

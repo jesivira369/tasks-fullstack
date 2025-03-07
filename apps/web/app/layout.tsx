@@ -1,10 +1,10 @@
 "use client";
 
-import { SessionProvider, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { Providers } from "./providers";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
+import Cookies from "js-cookie";
+import { Providers } from "./providers";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -21,16 +21,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth");
-    }
-  }, [session, status, router]);
+    const token = Cookies.get("token");
 
-  if (status === "loading") return null;
+    if (!token) {
+      router.push("/auth");
+    } else {
+      setLoading(false);
+    }
+  }, [router]);
+
+  if (loading) return null;
 
   return <>{children}</>;
 }
