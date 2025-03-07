@@ -28,17 +28,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = typeof window !== "undefined" ? window.location.pathname : "";
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = Cookies.get("token");
 
-    if (!token) {
+    if (!token && pathname !== "/auth") {
       router.push("/auth");
     } else {
       setLoading(false);
     }
-  }, [router]);
+  }, [router, pathname]);
 
   if (loading) return <p>Cargando...</p>;
 

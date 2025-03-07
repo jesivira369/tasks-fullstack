@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -14,9 +14,12 @@ import {
     TextField,
     Button,
     Paper,
+    Stack,
+    FormHelperText,
     CircularProgress,
-    Link,
+    Link
 } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
 const schema = yup.object().shape({
@@ -25,44 +28,48 @@ const schema = yup.object().shape({
 });
 
 export default function AuthPage() {
-    const [isLogin, setIsLogin] = useState(true);
-    const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const returnTo = searchParams.get("returnTo") || "/dashboard";
 
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const [isLogin, setIsLogin] = useState(true);
+    const [invalidCredentials, setInvalidCredentials] = useState<string | null>(null);
+
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
         resolver: yupResolver(schema),
     });
 
-    useEffect(() => {
-        const token = Cookies.get("token");
-        if (token) {
-            router.push("/dashboard");
-        }
-    }, []);
-
-    const onSubmit = async (data: any) => {
-        setLoading(true);
-        try {
+    const mutation = useMutation({
+        mutationFn: async (data: any) => {
             if (isLogin) {
                 const res = await api.post("/auth/login", data);
-                const token = res.data.accessToken;
-
-                if (!token) throw new Error("Error en autenticación");
-
-                Cookies.set("token", token, { expires: 1, secure: true });
-                toast.success("Inicio de sesión exitoso");
-
-                router.push("/dashboard");
+                return res.data;
             } else {
-                await api.post("/auth/register", data);
+                return api.post("/auth/register", data);
+            }
+        },
+        onSuccess: (data) => {
+            if (isLogin) {
+                Cookies.set("token", data.accessToken, { expires: 1, secure: true });
+                toast.success("Inicio de sesión exitoso");
+                router.push(returnTo);
+            } else {
                 toast.success("Registro exitoso, inicia sesión");
                 setIsLogin(true);
             }
-        } catch (error: any) {
-            toast.error(error.message || "Error en el inicio de sesión");
-        } finally {
-            setLoading(false);
-        }
+        },
+        onError: (error: any) => {
+            if (error.response?.status === 401) {
+                setInvalidCredentials(error.response?.data?.message || "Credenciales inválidas");
+            } else {
+                toast.error(error.response?.data?.message || "Error en la autenticación");
+            }
+        },
+    });
+
+    const onSubmit = (data: any) => {
+        setInvalidCredentials(null);
+        mutation.mutate(data);
     };
 
     return (
@@ -73,35 +80,41 @@ export default function AuthPage() {
                 </Typography>
 
                 <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 2 }}>
-                    <TextField
-                        fullWidth
-                        label="Email"
-                        margin="normal"
-                        {...register("email")}
-                        error={!!errors.email}
-                        helperText={errors.email?.message}
-                    />
+                    <Stack spacing={2}>
+                        <TextField
+                            {...register("email")}
+                            autoFocus
+                            error={Boolean(errors?.email)}
+                            fullWidth
+                            helperText={errors?.email?.message}
+                            label="Email"
+                            autoComplete="username"
+                        />
+                        <TextField
+                            {...register("password")}
+                            error={Boolean(errors?.password)}
+                            fullWidth
+                            helperText={errors?.password?.message}
+                            label="Contraseña"
+                            type="password"
+                            autoComplete="current-password"
+                        />
 
-                    <TextField
-                        fullWidth
-                        label="Contraseña"
-                        type="password"
-                        margin="normal"
-                        {...register("password")}
-                        error={!!errors.password}
-                        helperText={errors.password?.message}
-                    />
+                        {invalidCredentials && (
+                            <FormHelperText error>{invalidCredentials}</FormHelperText>
+                        )}
 
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        sx={{ mt: 2 }}
-                        disabled={loading}
-                    >
-                        {loading ? <CircularProgress size={24} /> : isLogin ? "Iniciar sesión" : "Registrarse"}
-                    </Button>
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            sx={{ mt: 2 }}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? <CircularProgress size={24} /> : isLogin ? "Iniciar sesión" : "Registrarse"}
+                        </Button>
+                    </Stack>
                 </Box>
 
                 <Typography variant="body2" sx={{ mt: 2 }}>
