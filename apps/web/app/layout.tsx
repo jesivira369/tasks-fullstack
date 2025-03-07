@@ -1,18 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
-import Cookies from "js-cookie";
+"use client";
+
+import { usePathname, useRouter } from "next/navigation";
 import { Providers } from "./providers";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
+import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname(); // 🔍 Obtiene la ruta actual
+
+  const isAuthPage = pathname.startsWith("/auth"); // 🛑 No aplicar el AuthGuard en /auth
+
   return (
     <html lang="en">
       <body>
         <Providers>
           <AppRouterCacheProvider>
-            <AuthGuard>{children}</AuthGuard>
+            {isAuthPage ? children : <AuthGuard>{children}</AuthGuard>}
           </AppRouterCacheProvider>
         </Providers>
       </body>
@@ -34,7 +40,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [router]);
 
-  if (loading) return null;
+  if (loading) return <p>Cargando...</p>;
 
   return <>{children}</>;
 }
