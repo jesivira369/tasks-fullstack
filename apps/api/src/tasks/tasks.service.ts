@@ -115,6 +115,7 @@ export class TasksService {
   async findOne(userId: string, id: string) {
     const task = await this.prisma.task.findUnique({
       where: { id, userId },
+      include: { user: true },
     });
 
     if (!task) {

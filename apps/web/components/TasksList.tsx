@@ -11,6 +11,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Task } from "@repo/types";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useRouter } from "next/navigation";
 
 interface TaskListProps {
     tasks: Task[];
@@ -24,6 +25,8 @@ export default function TaskList({ tasks, onEdit, onDelete }: TaskListProps) {
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+
+    const router = useRouter();
 
     const handleChangePage = (_event: unknown, newPage: number) => setPage(newPage);
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,7 +122,7 @@ export default function TaskList({ tasks, onEdit, onDelete }: TaskListProps) {
                                     <IconButton onClick={() => onEdit(task)} color="primary" sx={{ fontSize: "small" }}>
                                         <EditIcon />
                                     </IconButton>
-                                    <IconButton onClick={() => console.log("Detalles de tarea")} color="secondary" sx={{ fontSize: "small" }}>
+                                    <IconButton onClick={() => router.push(`/dashboard/${task.id}`)} color="secondary" sx={{ fontSize: "small" }}>
                                         <VisibilityIcon />
                                     </IconButton>
                                     <IconButton onClick={() => onDelete(task.id)} color="error" sx={{ fontSize: "small" }}>

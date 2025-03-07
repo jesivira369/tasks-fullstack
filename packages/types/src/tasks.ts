@@ -1,3 +1,5 @@
+import { User } from "./users";
+
 export type TaskStatus = "PENDING" | "COMPLETED";
 
 export interface Task {
@@ -9,4 +11,5 @@ export interface Task {
   collaborators: string[];
   createdAt: Date;
   updatedAt: Date;
+  user?: User;
 }
