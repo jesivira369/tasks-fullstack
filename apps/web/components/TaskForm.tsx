@@ -1,12 +1,11 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { Modal, Box, TextField, Button, Typography } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Task } from "@repo/types";
 import api from "../lib/api";
+import { useEffect } from "react";
 
 const schema = yup.object().shape({
     title: yup.string().required("El título es obligatorio"),
@@ -44,17 +43,41 @@ export default function TaskForm({ open, onClose, task, onSave }: TaskFormProps)
     };
 
     return (
-        <Modal open={open} onClose={onClose}>
-            <Box sx={{ width: 400, padding: 4, backgroundColor: "white", margin: "auto", mt: 10 }}>
-                <Typography variant="h6">{task ? "Editar Tarea" : "Nueva Tarea"}</Typography>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <TextField fullWidth label="Título" {...register("title")} error={!!errors.title} helperText={errors.title?.message} sx={{ mt: 2 }} />
-                    <TextField fullWidth label="Descripción" {...register("description")} error={!!errors.description} helperText={errors.description?.message} sx={{ mt: 2 }} />
-                    <Button fullWidth variant="contained" type="submit" sx={{ mt: 2 }}>
-                        {task ? "Actualizar" : "Agregar"}
-                    </Button>
-                </form>
-            </Box>
-        </Modal>
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+            <DialogTitle>
+                {task ? "Editar Tarea" : "Nueva Tarea"}
+                <IconButton
+                    aria-label="close"
+                    onClick={onClose}
+                    sx={{ position: "absolute", right: 8, top: 8 }}
+                >
+                    <CloseIcon />
+                </IconButton>
+            </DialogTitle>
+            <DialogContent>
+                <TextField
+                    {...register("title")}
+                    label="Título"
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.title}
+                    helperText={errors.title?.message}
+                />
+                <TextField
+                    {...register("description")}
+                    label="Descripción"
+                    fullWidth
+                    margin="normal"
+                    multiline
+                    rows={3}
+                    error={!!errors.description}
+                    helperText={errors.description?.message}
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose} color="secondary">Cancelar</Button>
+                <Button onClick={handleSubmit(onSubmit)} variant="contained">Guardar</Button>
+            </DialogActions>
+        </Dialog>
     );
 }

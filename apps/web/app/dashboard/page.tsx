@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Container, Typography, CircularProgress, Button } from "@mui/material";
+import { Container, Typography, CircularProgress, Button, Box } from "@mui/material";
 import TaskList from "../../components/TasksList";
 import TaskForm from "../../components/TaskForm";
 import api from "../../lib/api";
@@ -32,11 +32,9 @@ export default function Dashboard() {
     return (
         <Container>
             <Typography variant="h4" gutterBottom>Mis Tareas</Typography>
-
-            <Button variant="contained" onClick={() => setOpenForm(true)} sx={{ mb: 2 }}>
+            <Button variant="contained" sx={{ bgcolor: "primary.main", color: "white" }} onClick={() => setOpenForm(true)}>
                 Agregar Tarea
             </Button>
-
             <TaskList tasks={tasks || []} onEdit={(task: Task) => { setSelectedTask(task); setOpenForm(true); }} onDelete={(id: string) => deleteMutation.mutate(id)} />
 
             <TaskForm open={openForm} onClose={() => setOpenForm(false)} task={selectedTask} onSave={() => queryClient.invalidateQueries({ queryKey: ["tasks"] })} />

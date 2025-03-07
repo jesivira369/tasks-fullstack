@@ -30,7 +30,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [session, status, router]);
 
-  if (status === "loading") return null; // Evita parpadeos en la carga
+  if (status === "loading") return null;
 
   return <>{children}</>;
 }

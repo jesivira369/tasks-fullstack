@@ -42,10 +42,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
 
     return (
-        <Box sx={{ display: "flex" }}>
+        <Box sx={{ display: "flex", width: "100vw", height: "100vh" }}>
+            <CssBaseline />
+
             <AppBar position="fixed" sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}>
                 <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-                    <Typography variant="h6" noWrap component="div">
+                    <Typography variant="h6" noWrap>
                         Tareas Lemon
                     </Typography>
                     <IconButton color="inherit">
@@ -65,7 +67,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {drawer}
             </Drawer>
 
-            <Box component="main" sx={{ p: 2, mt: 8 }}>
+            <Box component="main" sx={{ flexGrow: 1, p: 2, mt: 8, width: "100%" }}>
                 {children}
             </Box>
         </Box>
