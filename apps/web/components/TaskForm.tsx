@@ -6,6 +6,7 @@ import * as yup from "yup";
 import { Task } from "@repo/types";
 import api from "../lib/api";
 import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 const schema = yup.object().shape({
     title: yup.string().required("El título es obligatorio"),
@@ -32,8 +33,10 @@ export default function TaskForm({ open, onClose, task, onSave }: TaskFormProps)
         try {
             if (task) {
                 await api.patch(`/tasks/${task.id}`, data);
+                toast.success("Tarea actualizada correctamente");
             } else {
                 await api.post("/tasks", data);
+                toast.success("Tarea creada con éxito");
             }
             onSave();
             onClose();

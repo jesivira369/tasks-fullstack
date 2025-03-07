@@ -17,6 +17,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../lib/api";
+import { toast } from "react-toastify";
 
 interface InviteUserModalProps {
     taskId: string;
@@ -49,10 +50,17 @@ export default function InviteUserModal({ taskId, userId, open, onClose }: Invit
     const users = data?.pages.flat() || [];
 
     const inviteMutation = useMutation({
-        mutationFn: async () => api.post(`/tasks/${taskId}/invite/${selectedUser}`),
-        onSuccess: () => {
+        mutationFn: async () => {
+            const res = await api.post(`/tasks/${taskId}/invite/${selectedUser}`);
+            return res.data;
+        },
+        onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ["tasks", taskId] });
+            toast.success(data.message || "Invitación enviada con éxito");
             onClose();
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || "Error al enviar la invitación");
         },
     });
 

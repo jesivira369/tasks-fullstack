@@ -7,6 +7,7 @@ import TaskList from "../../components/TasksList";
 import TaskForm from "../../components/TaskForm";
 import api from "../../lib/api";
 import { Task } from "@repo/types";
+import { toast } from "react-toastify";
 
 export default function Dashboard() {
     const queryClient = useQueryClient();
@@ -23,7 +24,11 @@ export default function Dashboard() {
 
     const deleteMutation = useMutation({
         mutationFn: async (taskId: string) => api.delete(`/tasks/${taskId}`),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["tasks"] })
+            toast.success("Tarea eliminada con éxito");
+        },
+        onError: () => toast.error("Error al eliminar la tarea")
     });
 
     if (isLoading) return <CircularProgress />;

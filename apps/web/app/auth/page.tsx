@@ -17,6 +17,7 @@ import {
     CircularProgress,
     Link,
 } from "@mui/material";
+import { toast } from "react-toastify";
 
 const schema = yup.object().shape({
     email: yup.string().email("Email inválido").required("Campo requerido"),
@@ -49,15 +50,16 @@ export default function AuthPage() {
                 if (!token) throw new Error("Error en autenticación");
 
                 Cookies.set("token", token, { expires: 1, secure: true });
+                toast.success("Inicio de sesión exitoso");
 
                 router.push("/dashboard");
             } else {
                 await api.post("/auth/register", data);
-                alert("Registro exitoso, ahora inicia sesión");
+                toast.success("Registro exitoso, inicia sesión");
                 setIsLogin(true);
             }
         } catch (error: any) {
-            alert(error.message);
+            toast.error(error.message || "Error en el inicio de sesión");
         } finally {
             setLoading(false);
         }
