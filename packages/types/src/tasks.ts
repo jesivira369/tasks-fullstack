@@ -3,7 +3,7 @@ export type TaskStatus = "PENDING" | "COMPLETED";
 export interface Task {
   id: string;
   title: string;
-  description?: string;
+  description: string;
   status: TaskStatus;
   userId: string;
   collaborators: string[];

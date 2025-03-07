@@ -7,6 +7,17 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { signIn } from "next-auth/react";
 import api from "../../lib/api";
+import Cookies from "js-cookie";
+import {
+    Container,
+    Box,
+    Typography,
+    TextField,
+    Button,
+    Paper,
+    CircularProgress,
+    Link,
+} from "@mui/material";
 
 const schema = yup.object().shape({
     email: yup.string().email("Email inválido").required("Campo requerido"),
@@ -15,20 +26,28 @@ const schema = yup.object().shape({
 
 export default function AuthPage() {
     const [isLogin, setIsLogin] = useState(true);
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
+
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema),
     });
 
     const onSubmit = async (data: any) => {
+        setLoading(true);
         try {
             if (isLogin) {
-                const res = await signIn("credentials", {
-                    ...data,
-                    redirect: false,
-                });
+                const res = await api.post("/auth/login", data);
+                const token = res.data.accessToken; // Extraer el token de la respuesta
 
-                if (res?.error) throw new Error(res.error);
+                console.log("res:", res);
+
+                if (!token) throw new Error("Error en autenticación");
+
+                // Guardar el token en Cookies
+                Cookies.set("token", token, { expires: 1, secure: true });
+
+                // Redirigir al dashboard
                 router.push("/dashboard");
             } else {
                 await api.post("/auth/register", data);
@@ -37,37 +56,57 @@ export default function AuthPage() {
             }
         } catch (error: any) {
             alert(error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="p-8 bg-white rounded-lg shadow-lg w-96">
-                <h2 className="text-2xl font-bold mb-4 text-center">
+        <Container component="main" maxWidth="xs" sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh" }}>
+            <Paper elevation={6} sx={{ padding: 4, textAlign: "center", width: "100%", borderRadius: 4 }}>
+                <Typography variant="h4" component="h1" gutterBottom>
                     {isLogin ? "Iniciar sesión" : "Registrarse"}
-                </h2>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="mb-4">
-                        <label className="block text-gray-700">Email</label>
-                        <input {...register("email")} type="email" className="w-full p-2 border rounded" />
-                        <p className="text-red-500 text-sm">{errors.email?.message}</p>
-                    </div>
-                    <div className="mb-4">
-                        <label className="block text-gray-700">Contraseña</label>
-                        <input {...register("password")} type="password" className="w-full p-2 border rounded" />
-                        <p className="text-red-500 text-sm">{errors.password?.message}</p>
-                    </div>
-                    <button className="w-full bg-blue-500 text-white p-2 rounded">
-                        {isLogin ? "Iniciar sesión" : "Registrarse"}
-                    </button>
-                </form>
-                <p className="mt-4 text-center text-sm">
+                </Typography>
+
+                <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 2 }}>
+                    <TextField
+                        fullWidth
+                        label="Email"
+                        margin="normal"
+                        {...register("email")}
+                        error={!!errors.email}
+                        helperText={errors.email?.message}
+                    />
+
+                    <TextField
+                        fullWidth
+                        label="Contraseña"
+                        type="password"
+                        margin="normal"
+                        {...register("password")}
+                        error={!!errors.password}
+                        helperText={errors.password?.message}
+                    />
+
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        sx={{ mt: 2 }}
+                        disabled={loading}
+                    >
+                        {loading ? <CircularProgress size={24} /> : isLogin ? "Iniciar sesión" : "Registrarse"}
+                    </Button>
+                </Box>
+
+                <Typography variant="body2" sx={{ mt: 2 }}>
                     {isLogin ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
-                    <span className="text-blue-500 cursor-pointer" onClick={() => setIsLogin(!isLogin)}>
+                    <Link component="button" onClick={() => setIsLogin(!isLogin)} sx={{ cursor: "pointer" }}>
                         {isLogin ? "Regístrate" : "Inicia sesión"}
-                    </span>
-                </p>
-            </div>
-        </div>
+                    </Link>
+                </Typography>
+            </Paper>
+        </Container>
     );
 }

@@ -1,8 +1,5 @@
-export default async function IndexPage() {
+import { redirect } from "next/navigation";
 
-  return (
-    <div>
-      <h1>Hello World</h1>
-    </div>
-  );
+export default function IndexPage() {
+  redirect("/auth");
 }
