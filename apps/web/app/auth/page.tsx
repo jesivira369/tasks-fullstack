@@ -38,16 +38,12 @@ export default function AuthPage() {
         try {
             if (isLogin) {
                 const res = await api.post("/auth/login", data);
-                const token = res.data.accessToken; // Extraer el token de la respuesta
-
-                console.log("res:", res);
+                const token = res.data.accessToken;
 
                 if (!token) throw new Error("Error en autenticación");
 
-                // Guardar el token en Cookies
                 Cookies.set("token", token, { expires: 1, secure: true });
 
-                // Redirigir al dashboard
                 router.push("/dashboard");
             } else {
                 await api.post("/auth/register", data);

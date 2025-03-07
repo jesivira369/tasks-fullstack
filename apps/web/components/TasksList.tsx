@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import {
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    Button, Select, MenuItem, IconButton, Typography, TablePagination, Box,
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Select, MenuItem, IconButton, TablePagination, Box,
     TextField
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";

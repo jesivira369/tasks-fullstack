@@ -13,10 +13,6 @@ const drawerWidth = 240;
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const [mobileOpen, setMobileOpen] = useState(false);
 
-    const handleDrawerToggle = () => {
-        setMobileOpen(!mobileOpen);
-    };
-
     const drawer = (
         <Box sx={{ width: drawerWidth }}>
             <Toolbar />
