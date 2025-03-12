@@ -8,8 +8,15 @@ export interface Task {
   description: string;
   status: TaskStatus;
   userId: string;
-  collaborators: string[];
+  collaborators: TaskCollaborators[];
   createdAt: Date;
   updatedAt: Date;
   user: User;
+}
+
+export interface TaskCollaborators {
+  taskId: string;
+  user: User;
+  id: string;
+  userId: string;
 }

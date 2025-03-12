@@ -14,6 +14,7 @@ import { useParams } from "next/navigation";
 import InviteUserModal from "../../../components/TaskInvitation";
 import TaskForm from "../../../components/TaskForm";
 import { toast } from "react-toastify";
+import CollaboratorsList from "../../../components/CollaboratorsList";
 
 export default function TaskDetails() {
     const { id } = useParams();
@@ -100,6 +101,8 @@ export default function TaskDetails() {
                     Agregar colaborador
                 </Button>
             </Box>
+
+            <CollaboratorsList collaborators={task.collaborators} />
 
             <Modal open={openConfirm} onClose={() => setOpenConfirm(false)}>
                 <Box
