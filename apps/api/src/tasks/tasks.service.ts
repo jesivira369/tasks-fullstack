@@ -147,9 +147,11 @@ export class TasksService {
       });
     }
 
+    const { title, description, status } = updateTaskDto;
+
     return this.prisma.task.update({
       where: { id },
-      data: updateTaskDto,
+      data: { title, description, status },
     });
   }
 
