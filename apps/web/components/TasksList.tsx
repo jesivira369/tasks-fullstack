@@ -120,13 +120,8 @@ export default function TaskList({ tasks, onEdit, onDelete }: TaskListProps) {
                                 <TableCell
                                     sx={{
                                         display: "flex",
-                                        gap: 1,
-                                        justifyContent: "center",
-                                        flexWrap: "wrap",
-                                        "@media (max-width:600px)": {
-                                            flexDirection: "column",
-                                            alignItems: "center",
-                                        },
+                                        mt: 2,
+                                        p: 2
                                     }}
                                 >
                                     <IconButton onClick={() => onEdit(task)} color="primary" sx={{ fontSize: "small" }}>
